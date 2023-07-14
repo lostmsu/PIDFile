@@ -9,6 +9,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageLicenseFile Condition="$(PackageLicenseExpression) == ''">LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>0.0.1</Version>
     <!--<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>-->
 
     <!-- The following is recommended for public projects -->
