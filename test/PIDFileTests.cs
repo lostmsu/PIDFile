@@ -17,7 +17,7 @@ public class PIDFileTests {
 
         using var _ = await PIDFile.Create(fileName);
         var ex = await Assert.ThrowsAsync<IOException>(() => PIDFile.Create(fileName));
-        Assert.True(IsFileAlreadyExists(ex));
+        Assert.True(IsFileAlreadyExists(ex), $"IsFileAlreadyExists: 0x{ex.HResult:X8}");
     }
 
     [Fact]
