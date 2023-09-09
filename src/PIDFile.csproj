@@ -9,7 +9,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageLicenseFile Condition="$(PackageLicenseExpression) == ''">LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
+    <PackageReleaseNotes>0.0.2 - OpenOrCreate now automatically removes stale .pid files</PackageReleaseNotes>
     <!--<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>-->
 
     <!-- The following is recommended for public projects -->

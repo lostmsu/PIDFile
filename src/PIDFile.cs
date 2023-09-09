@@ -2,6 +2,7 @@
 
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,15 @@ public sealed class PIDFile: IDisposable {
 
             bool exists = await Task.Run(() => File.Exists(path), cancel)
                                     .ConfigureAwait(false);
-            if (exists)
+            if (exists) {
+                // no need to check for write access on Windows as it can't delete a locked file
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                 || await CanWrite(path, cancel).ConfigureAwait(false)) {
+                    exists = !await TryDelete(path, cancel).ConfigureAwait(false);
+                }
+            }
+
+            if (exists) {
                 try {
                     using var file = new FileStream(path, FileMode.Open, FileAccess.Read,
                                                     FileShare.ReadWrite | FileShare.Delete,
@@ -32,7 +41,7 @@ public sealed class PIDFile: IDisposable {
                         continue;
                     }
                 } catch (FileNotFoundException) { }
-            else {
+            } else {
                 try {
                     return await Create(path, cancel).ConfigureAwait(false);
                 } catch (IOException e) when (e.IsFileAlreadyExists()) { }
@@ -55,6 +64,32 @@ public sealed class PIDFile: IDisposable {
             return pidFile;
         } finally {
             file?.Dispose();
+        }
+    }
+
+    static async Task<bool> CanWrite(string path, CancellationToken cancel) {
+        try {
+            await Task
+                  .Run(() => new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.Read)
+                           .Close(), cancel)
+                  .ConfigureAwait(false);
+            return true;
+        } catch (FileNotFoundException) {
+            return true;
+        } catch (IOException) {
+            return false;
+        }
+    }
+
+    static async Task<bool> TryDelete(string path, CancellationToken cancel) {
+        try {
+            await Task.Run(() => File.Delete(path), cancel).ConfigureAwait(false);
+            return true;
+        } catch (FileNotFoundException) {
+            return true;
+        } catch (IOException) {
+            // TODO restrict to sharing violation
+            return false;
         }
     }
 

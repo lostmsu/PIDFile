@@ -44,4 +44,14 @@ public class PIDFileTests {
         using var existing = await PIDFile.OpenOrCreate(fileName);
         Assert.False(existing.Owned);
     }
+
+    [Fact]
+    public async Task StaleIsRemoved() {
+        string fileName = MakeName();
+
+        await File.WriteAllTextAsync(fileName, "1234").ConfigureAwait(false);
+
+        using var pidFile = await PIDFile.OpenOrCreate(fileName);
+        Assert.True(pidFile.Owned);
+    }
 }
